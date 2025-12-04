@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>STS Prämienrechner Test</title>
+</head>
+<body>
+
+<!-- STS Prämienrechner Kundengeldabsicherung -->
+<div id="sts-premium-calculator" style="max-width: 500px; padding: 1rem; border: 1px solid #ddd; border-radius: 6px;">
+  <h3>Prämienrechner STS Kundengeldabsicherung</h3>
+  <p>Bitte geben Sie Ihre Jahresumsätze in CHF ein.</p>
+
+  <div style="margin-bottom: 0.75rem;">
+    <label for="retailUmsatz" style="display:block; font-weight:600;">Retail-Umsatz (CHF/Jahr)</label>
+    <input type="number" id="retailUmsatz" min="0" step="1" style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-bottom: 0.75rem;">
+    <label for="toUmsatz" style="display:block; font-weight:600;">Tour-Operator-Umsatz (CHF/Jahr)</label>
+    <input type="number" id="toUmsatz" min="0" step="1" style="width:100%; padding:0.4rem;">
+  </div>
+
+  <div style="margin-bottom: 0.75rem;">
+    <label for="bspUmsatz" style="display:block; font-weight:600;">BSP-Umsatz (CHF/Jahr)</label>
+    <input type="number" id="bspUmsatz" min="0" step="1" style="width:100%; padding:0.4rem;">
+  </div>
+
+  <button id="sts-calc-button" type="button" style="padding:0.5rem 1rem; cursor:pointer;">
+    Prämie berechnen
+  </button>
+
+  <div id="sts-premium-result" style="margin-top:1rem; font-weight:bold; min-height:1.5rem;"></div>
+</div>
+
+<script>
+  // Warten, bis die Seite geladen ist – damit das auch funktioniert,
+  // falls das Script im <head> landet oder vom CMS verschoben wird.
+  window.addEventListener('DOMContentLoaded', function () {
+    var button = document.getElementById('sts-calc-button');
+    var resultEl = document.getElementById('sts-premium-result');
+
+    button.addEventListener('click', function () {
+      var retail = parseFloat(document.getElementById('retailUmsatz').value) || 0;
+      var to = parseFloat(document.getElementById('toUmsatz').value) || 0;
+      var bsp = parseFloat(document.getElementById('bspUmsatz').value) || 0;
+
+      // Prozent-Prämien
+      var premiumBerechnet =
+        retail * 0.0005 +   // 0.05% Retail
+        to * 0.001   +      // 0.1% TO
+        bsp * 0.0003;       // 0.03% BSP
+
+      // Minimalprämie
+      var minPraemie = 0;
+      if (retail > 0) minPraemie = Math.max(minPraemie, 780);
+      if (to > 0)     minPraemie = Math.max(minPraemie, 980);
+      if (bsp > 0)    minPraemie += 90;
+
+      var endPraemie = Math.max(premiumBerechnet, minPraemie);
+      var endPraemieGerundet = Math.round(endPraemie);
+
+      resultEl.textContent =
+        'Ihre Jahresprämie beträgt: CHF ' + endPraemieGerundet.toLocaleString('de-CH');
+    });
+  });
+</script>
+
+</body>
+</html>
