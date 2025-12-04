@@ -34,37 +34,63 @@
 </div>
 
 <script>
-  // Warten, bis die Seite geladen ist – damit das auch funktioniert,
-  // falls das Script im <head> landet oder vom CMS verschoben wird.
   window.addEventListener('DOMContentLoaded', function () {
     var button = document.getElementById('sts-calc-button');
     var resultEl = document.getElementById('sts-premium-result');
 
     button.addEventListener('click', function () {
       var retail = parseFloat(document.getElementById('retailUmsatz').value) || 0;
-      var to = parseFloat(document.getElementById('toUmsatz').value) || 0;
-      var bsp = parseFloat(document.getElementById('bspUmsatz').value) || 0;
+      var to     = parseFloat(document.getElementById('toUmsatz').value) || 0;
+      var bsp    = parseFloat(document.getElementById('bspUmsatz').value) || 0;
 
-      // Prozent-Prämien
-      var premiumBerechnet =
-        retail * 0.0005 +   // 0.05% Retail
-        to * 0.001   +      // 0.1% TO
-        bsp * 0.0003;       // 0.03% BSP
+      if (retail === 0 && to === 0 && bsp === 0) {
+        resultEl.textContent = "Bitte geben Sie mindestens einen Umsatz ein.";
+        return;
+      }
 
-      // Minimalprämie
-      var minPraemie = 0;
-      if (retail > 0) minPraemie = Math.max(minPraemie, 780);
-      if (to > 0)     minPraemie = Math.max(minPraemie, 980);
-      if (bsp > 0)    minPraemie += 90;
+      var stepPremium = 0;
 
-      var endPraemie = Math.max(premiumBerechnet, minPraemie);
-      var endPraemieGerundet = Math.round(endPraemie);
+      // 1. Retail-Beitrag (mit Mindestprämie 780)
+      if (retail > 0) {
+        var retailVar = retail * 0.0005; // 0.05%
+        stepPremium += Math.max(780, retailVar);
+      }
+
+      // 2. TO-Beitrag (mit Mindestprämie 200)
+      if (to > 0) {
+        var toVar = to * 0.001; // 0.1%
+        stepPremium += Math.max(200, toVar);
+      }
+
+      // 3. BSP-Beitrag (mit Mindestprämie 90)
+      if (bsp > 0) {
+        var bspVar = bsp * 0.0003; // 0.03%
+        stepPremium += Math.max(90, bspVar);
+      }
+
+      // 4. Gesamt-Mindestprämie (Retail-Basis + TO + BSP)
+      var minPremium = 0;
+      if (retail > 0 || to > 0 || bsp > 0) {
+        minPremium += 780; // Basis-Retail-Mindestprämie
+      }
+      if (to > 0) {
+        minPremium += 200; // TO-Zuschlag
+      }
+      if (bsp > 0) {
+        minPremium += 90;  // BSP-Zuschlag
+      }
+
+      var praemie = Math.max(stepPremium, minPremium);
+      var praemieGerundet = Math.round(praemie);
 
       resultEl.textContent =
-        'Ihre Jahresprämie beträgt: CHF ' + endPraemieGerundet.toLocaleString('de-CH');
+        "Ihre Jahresprämie beträgt: CHF " +
+        praemieGerundet.toLocaleString('de-CH');
     });
   });
 </script>
 
+
 </body>
 </html>
+
